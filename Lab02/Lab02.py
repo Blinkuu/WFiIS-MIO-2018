@@ -75,12 +75,25 @@ for i in file['x3']:
 for i in file['y']:
     tabY.append(float(i))
 
+countOutputs = np.zeros((1, 3, 3))
+memfunList = [[x1['lo'], x1['md'], x1['hi']],
+              [x2['lo'], x2['md'], x2['hi']],
+              [x3['lo'], x3['md'], x3['hi']]]
+
+
+
+mem_value_x1 = fuzz.interp_membership(x1.universe, x1_lo, tabX1)
+print(mem_value_x1)
+
+
+
+
 '''
 fig = plt.figure()
 ax = fig.gca(projection='3d')
 
 xValues = tabX1
-yValues = tabX2
+yValues = tabX3
 zValues = tabY
 
 ax.scatter(xValues, yValues, zValues)
@@ -88,6 +101,9 @@ ax.scatter(xValues, yValues, zValues)
 for spine in ax.spines.values():
     spine.set_visible(False)
 
+ax.set_title('My data dependancy')
+ax.set_xlabel("x1")
+ax.set_ylabel("x3")
 plt.tight_layout();
 
 plt.show()

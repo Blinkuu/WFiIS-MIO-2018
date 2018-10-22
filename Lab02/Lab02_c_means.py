@@ -24,16 +24,6 @@ for i in file['x3']:
 for i in file['y']:
     tabY.append(float(i))
 
-centers = [[3, 4.7],
-           [4, 4.7],
-           [3, 4.7]]
-
-sigmas = [[np.std(tabX1), np.std(tabY)],
-          [np.std(tabX2), np.std(tabY)],
-          [np.std(tabX3), np.std(tabY)]]
-
-# Set up the loop and plot
-
 
 xpts = tabX1[0]
 ypts = tabY[0]
@@ -58,8 +48,13 @@ plt.show()
 
 # Set up the loop and plot
 fig1, axes1 = plt.subplots(3, 3, figsize=(8, 8))
+
+xxpts = tabX1 + tabX2 + tabX3
+yypts = tabY
 alldata = np.vstack((xpts, ypts))
 fpcs = []
+
+print("ALLDATA: ", alldata)
 
 for ncenters, ax in enumerate(axes1.reshape(-1), 2):
     cntr, u, u0, d, jm, p, fpc = fuzz.cluster.cmeans(

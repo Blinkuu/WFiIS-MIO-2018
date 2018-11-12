@@ -1,3 +1,7 @@
+'''
+Implemented by Łukasz Gut
+11/12/2018
+'''
 import random as rnd
 import math
 from datetime import datetime

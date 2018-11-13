@@ -18,8 +18,8 @@ class Particle:
         self.v_x = np.random.uniform(-0.01, 0.01)
         self.v_y = np.random.uniform(-0.01, 0.01)
         self.v_max = v_max
-        self.c1 = 2
-        self.c2 = 2
+        self.c1 = 2.2
+        self.c2 = 2.2
 
     def fitness(self):
         return self.x ** 2 + self.y ** 2 - 20 * (math.cos(math.pi * self.x) + math.cos(math.pi * self.y) - 2)
@@ -53,19 +53,6 @@ class Particle:
         self.x = self.x + self.v_x
         self.y = self.y + self.v_y
 
-        if self.x > x_max:
-            offset = abs(self.x) - 10.0
-            self.x = x_max - offset
-        if self.x < (-1) * x_max:
-            offset = abs(self.x) - 10.0
-            self.x = (-1) * x_max + offset
-        if self.y > y_max:
-            offset = abs(self.y) - 10.0
-            self.y = y_max - offset
-        if self.y < (-1) * y_max:
-            offset = abs(self.y) - 10.0
-            self.y = (-1) * y_max + offset
-
 
 class Population:
     def __init__(self, pop_size, v_max):
@@ -98,10 +85,9 @@ def U(x, y):
 
 
 def omega(c1, c2):
-    #fi = c1 + c2
-    #w = 2 / (2 - fi - math.sqrt((fi ** 2) - (4 * fi)))
-    #return w
-    return 0.7298
+    fi = c1 + c2
+    w = 2 / abs((2 - fi - math.sqrt((fi ** 2) - (4 * fi))))
+    return w
 
 
 def search_best_index(fit_tab):
@@ -158,11 +144,8 @@ while k < 2000:
         g_best_particle = p_best_particle
         g_best_value = p_best_value
 
-    #print("BEST PARTICLE = ", g_best_particle, " FITNESS = ", g_best_value)
-    print("VELOCITY = ", k, population.pop_tab[0].v_x, population.pop_tab[0].v_x)
-
     k += 1
 
-print("(x,y) = (", format(g_best_particle[0], '.10f'), ", ", format(g_best_particle[1], '.10f'), ")")
-print("f(x,y) = ", format(g_best_value, '.10f'))
+print("(x,y) = (", g_best_particle[0], ", ", g_best_particle[1], ")")
+print("f(x,y) = ", g_best_value, '.10f')
 print("\n\n")

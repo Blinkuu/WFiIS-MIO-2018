@@ -47,9 +47,6 @@ class Particle:
             self.v_y = velocity_y
 
     def update_position(self):
-        x_max = 10.0
-        y_max = 10.0
-
         self.x = self.x + self.v_x
         self.y = self.y + self.v_y
 
@@ -111,8 +108,6 @@ def plot(population, pop_size):
 
     plt.show()
 
-
-# Algorithm
 pop_size = 20
 v_max = 0.01
 
@@ -125,27 +120,24 @@ g_best_value = population.pop_tab[g_best_index].fitness()
 k = 0
 while k < 2000:
 
-    if k % 100 == 0:
-        plot(population, pop_size)
-
     fitness_tab = population.fitness_of_particles()
 
     p_best_index = search_best_index(fitness_tab)
     p_best_particle = [population.pop_tab[p_best_index].x, population.pop_tab[p_best_index].y]
     p_best_value = population.pop_tab[p_best_index].fitness()
 
-    for i in range(pop_size):
-        population.pop_tab[i].update_velocity(population.pop_tab[p_best_index].x, population.pop_tab[p_best_index].y,
-                                              population.pop_tab[g_best_index].x, population.pop_tab[g_best_index].y)
-        population.pop_tab[i].update_position()
-
     if p_best_value < g_best_value:
         g_best_index = p_best_index
         g_best_particle = p_best_particle
         g_best_value = p_best_value
 
+    for i in range(pop_size):
+        population.pop_tab[i].update_velocity(population.pop_tab[p_best_index].x,
+                                              population.pop_tab[p_best_index].y,
+                                              population.pop_tab[g_best_index].x,
+                                              population.pop_tab[g_best_index].y)
+        population.pop_tab[i].update_position()
+
     k += 1
 
-print("(x,y) = (", g_best_particle[0], ", ", g_best_particle[1], ")")
-print("f(x,y) = ", g_best_value, '.10f')
-print("\n\n")
+print("BEST VALUE FOUND = ", g_best_value)

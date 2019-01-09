@@ -1,3 +1,4 @@
+% Time series prediction
 clc; clear;
 
 % Import data
@@ -28,7 +29,8 @@ end
 clearvars filename delimiter startRow formatSpec fileID dataArray i ans;
 
 % Preprocessing of data
-closing = closing/max(closing) - 0.5;
+max_closing = max(closing);
+closing = closing/max_closing - 0.5;
 
 data_size = length(Danelab5);
 t_data = 300;
@@ -46,12 +48,12 @@ t_test = closing(data_size-t_data+1:data_size)';
 clearvars i
 
 % Neural network
-net = feedforwardnet([5 3 3]);
+net = feedforwardnet([3 3 3]);
 net = configure(net, x_learn, t_learn);
 net.layers{1}.transferFcn = 'tansig';
 net.layers{2}.transferFcn = 'tansig';
 net.layers{3}.transferFcn = 'tansig';
-net.layers{4}.transferFcn = 'purelin';
+net.layers{4}.transferFcn = 'tansig';
 net.trainFcn = 'trainlm';
 net.trainParam.lr = 0.05;
 net.trainParam.epochs = 3000;
@@ -59,59 +61,66 @@ net.trainParam.goal = 1e-7;
 net.divideFcn = 'divideind';
 net.divideParam.trainInd = 1:length(x_learn)-365;
 net.divideParam.valInd = length(x_learn)-364:length(x_learn);
+%view(net)
 net = train(net, x_learn, t_learn);
+
+% Neural network working on learning data
 %{
 y = net(x_learn);
 
-for i = 1:length(y)
-   error_vec(i) = t_learn(i)-y(i);
-end
+y_temp = (y+0.5) * max_closing;
+t_learn_temp = (t_learn+0.5) * max_closing;
+closing_temp = (closing+0.5)*max_closing;
 
-plot(1:length(error_vec),error_vec)
+MSE = perform(net, t_learn_temp, y_temp)
+error_vec = t_learn_temp-y_temp;
+max_error = max(abs(error_vec));
+relative_error_vec = ((t_learn_temp-y_temp)/max_error)*100;
 
-MSE = perform(net, t_learn, y);
+plot(1:length(y_temp),y_temp);
+hold on;
+plot(1:length(t_learn_temp), t_learn_temp);
+title('Prediction')
+xlabel('time')
+ylabel('closing value')
+legend('Output', 'Target')
+hold off;
 
-plot(1:length(y), y,'r',1:length(y),closing(1:data_size-t_data-offset),'b');
+
+%plot(1:length(error_vec),error_vec);
+%plot(1:length(relative_error_vec),relative_error_vec);
+
+plot(1:length(y_temp), y_temp,'r',1:length(y),t_learn_temp,'b');
 hold on;
 title('Prediction')
 xlabel('time')
 ylabel('closing value')
-legend('Next day stock value', 'Stock value')
+legend('Output', 'Target')
 hold off;
-
-%y = net(x_learn);
-%plot(1:length(y), y, 'r', 1:length(y), closing(1:data_size-t_data-offset))
 %}
 
-
+% Neural network working on testing data
 y = net(x_test);
 
-for i = 1:length(y)
-   error_vec(i) = t_test(i)-y(i);
-end
-plot(1:length(error_vec),error_vec);
+y_temp = (y+0.5) * max_closing;
+t_test_temp = (t_test+0.5) * max_closing;
+closing_temp = (closing+0.5)*max_closing;
 
-max_error = max(abs(error_vec))
+MSE = perform(net, t_test_temp, y_temp);
+error_vec = t_test-y_temp;
+max_error = max(abs(error_vec));
+relative_error_vec = ((t_test_temp-y_temp)/max_error)*100;
 
-for i = 1:length(y)
-   relative_error_vec(i) = ((t_test(i)-y(i))/max_error)*100;
-end
-plot(1:length(error_vec),relative_error_vec);
-
-MSE = perform(net, t_test, y);
-
-plot(1:length(y), y,'r',1:length(y),closing(data_size-t_data+1:data_size),'b');
+plot(1:length(y_temp),y_temp);
 hold on;
+plot(1:length(t_test_temp), t_test_temp);
 title('Prediction')
 xlabel('time')
 ylabel('closing value')
-legend('Next day stock value', 'Stock value')
+legend('Output', 'Target')
 hold off;
 
-%y = net(x_learn);
-%plot(1:length(y), y, 'r', 1:length(y), closing(1:data_size-t_data-offset))
+%plot(1:length(error_vec),error_vec);
+%plot(1:length(relative_error_vec),relative_error_vec);
 
-
-
-
-
+clearvars t_test_temp y_temp closing_temp
